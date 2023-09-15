@@ -4,14 +4,11 @@ class HamburguerFactory
 {
     public static function createHamburguer($type)
     {
-        switch ($type) {
-            case 'cheese':
-                return new CheeseBurger();
-            case 'chicken':
-                return new ChickenBurger();
-            default:
-                throw new InvalidArgumentException("Tipo de hamburguer inválido: $type");
-        }
+        return match ($type) {
+            'cheese' => new CheeseBurger(),
+            'chicken' => new ChickenBurger(),
+            default => throw new InvalidArgumentException("Tipo de hamburguer inválido: $type"),
+        };
     }
 }
 
