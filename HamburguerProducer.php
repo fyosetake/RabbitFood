@@ -10,12 +10,21 @@ class HamburguerProducer
 {
     private $connection;
     private $channel;
+    private static $instance;
 
     public function __construct()
     {
         $this->connection = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
         $this->channel = $this->connection->channel();
         $this->channel->queue_declare('hamburguer_queue', false, false, false, false);
+    }
+
+    public static function getInstance()
+    {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
     }
 
     public function produceHamburguer($type)
@@ -26,9 +35,15 @@ class HamburguerProducer
         $this->channel->basic_publish($message, '', 'hamburguer_queue');
         echo "Produzido: ", $hamburguer->getDescription(), "\n";
     }
+
+    public function closeConnection()
+    {
+        $this->channel->close();
+        $this->connection->close();
+    }
 }
 
-$producer = new HamburguerProducer();
+$producer = HamburguerProducer::getInstance();
 
 while (true) {
     echo "Digite o tipo de hambúrguer ('cheese' ou 'chicken') ou 'exit' para sair: ";
